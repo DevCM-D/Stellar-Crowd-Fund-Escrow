@@ -4,10 +4,11 @@
 
 A platform where communities pool funds, contractors deliver work in verifiable milestones, and every outcome — completion or dispute — builds a tamper-proof on-chain reputation that follows both parties forever.
 
+[![CI](https://github.com/DevCM-D/Stellar-Crowd-Fund-Escrow/actions/workflows/ci.yml/badge.svg)](https://github.com/DevCM-D/Stellar-Crowd-Fund-Escrow/actions/workflows/ci.yml)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 [![Built on Stellar](https://img.shields.io/badge/Built%20on-Stellar-7B2FBE?logo=stellar)](https://stellar.org)
 [![Soroban Contracts](https://img.shields.io/badge/Smart%20Contracts-Soroban%20%2F%20Rust-orange)](https://soroban.stellar.org)
-[![Backend Tests](https://img.shields.io/badge/backend%20tests-425%20passing-brightgreen)](#testing)
+[![Backend Tests](https://img.shields.io/badge/backend%20tests-425%20passing-brightgreen)](https://github.com/DevCM-D/Stellar-Crowd-Fund-Escrow/actions)
 [![Node](https://img.shields.io/badge/Node.js-%3E%3D18-339933?logo=node.js)](https://nodejs.org)
 [![PRs Welcome](https://img.shields.io/badge/PRs-welcome-blue)](CONTRIBUTING.md)
 
