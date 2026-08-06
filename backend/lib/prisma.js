@@ -3,6 +3,15 @@
  *
  * Reuses a single PrismaClient instance across the app to avoid
  * exhausting the DB connection pool on hot reloads.
+ *
+ * Connection pool sizing:
+ *   - Pool size is controlled via the `connection_limit` query parameter on
+ *     DATABASE_URL (e.g. postgresql://...?connection_limit=20&pool_timeout=10).
+ *   - The default Prisma pool size is num_cpus * 2 + 1, which is often too small
+ *     under concurrent milestone-approval workloads. Set DATABASE_URL with an
+ *     explicit connection_limit appropriate for your Postgres max_connections.
+ *   - PRISMA_CONNECTION_LIMIT env var is applied when DATABASE_URL does not
+ *     already contain a connection_limit parameter.
  */
 
 import { PrismaClient } from '@prisma/client';
@@ -11,6 +20,21 @@ import { attachRetryMiddleware } from './retryUtils.js';
 import { DEFAULT_TENANT_ID, getCurrentTenantId, isTenantScopeBypassed } from './tenantContext.js';
 
 const SLOW_QUERY_MS = parseInt(process.env.SLOW_QUERY_THRESHOLD_MS || '500', 10);
+
+/**
+ * Append connection pool parameters to DATABASE_URL if not already set.
+ * This ensures the shared singleton uses an explicit pool limit rather than
+ * relying on Prisma's per-process default.
+ */
+function resolveDbUrl() {
+  const url = process.env.DATABASE_URL;
+  if (!url) return url;
+  if (url.includes('connection_limit=')) return url;
+  const limit = parseInt(process.env.PRISMA_CONNECTION_LIMIT || '20', 10);
+  const timeout = parseInt(process.env.PRISMA_POOL_TIMEOUT || '10', 10);
+  const separator = url.includes('?') ? '&' : '?';
+  return `${url}${separator}connection_limit=${limit}&pool_timeout=${timeout}`;
+}
 
 const globalForPrisma = globalThis;
 
@@ -51,7 +75,9 @@ function mergeTenantWhere(where, tenantId) {
 }
 
 function createPrismaClient() {
+  const dbUrl = resolveDbUrl();
   const base = new PrismaClient({
+    datasources: dbUrl ? { db: { url: dbUrl } } : undefined,
     log:
       process.env.NODE_ENV === 'development'
         ? [{ emit: 'event', level: 'query' }, 'warn', 'error']
