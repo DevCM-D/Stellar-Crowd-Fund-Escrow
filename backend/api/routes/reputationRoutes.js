@@ -2,6 +2,7 @@ import express from 'express';
 import reputationController from '../controllers/reputationController.js';
 import { cacheResponse, TTL } from '../middleware/cache.js';
 import { reputationSearchRateLimit } from '../../middleware/rateLimit.js';
+import { stellarAddressParam, handleValidationErrors } from '../../middleware/validation.js';
 
 const router = express.Router();
 
@@ -25,6 +26,8 @@ router.get(
  */
 router.get(
   '/:address',
+  stellarAddressParam('address'),
+  handleValidationErrors,
   cacheResponse({
     ttl: TTL.REPUTATION,
     tags: (req) => ['reputation', `reputation:${req.params.address}`],

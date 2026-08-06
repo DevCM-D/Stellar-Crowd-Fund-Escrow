@@ -15,6 +15,9 @@ import tenantController from '../controllers/tenantController.js';
 import * as featureFlagController from '../controllers/featureFlagController.js';
 import { getAuditLog, rotateSecrets } from '../../lib/secrets.js';
 import cache from '../../lib/cache.js';
+import { stellarAddressParam, handleValidationErrors } from '../../middleware/validation.js';
+
+const validateAdminAddress = [stellarAddressParam('address'), handleValidationErrors];
 
 // Apply admin authentication to all routes in this file
 router.use(adminAuth);
@@ -38,7 +41,7 @@ router.get('/users', adminController.listUsers);
  * @route  GET /api/admin/users/:address
  * @desc   Get detailed profile for a single user
  */
-router.get('/users/:address', adminController.getUserDetail);
+router.get('/users/:address', validateAdminAddress, adminController.getUserDetail);
 
 /**
  * @route  POST /api/admin/users/:address/suspend
@@ -46,7 +49,7 @@ router.get('/users/:address', adminController.getUserDetail);
  * @body   { reason: string }
  * @security Requires MFA verification
  */
-router.post('/users/:address/suspend', requireMfa, adminController.suspendUser);
+router.post('/users/:address/suspend', validateAdminAddress, requireMfa, adminController.suspendUser);
 
 /**
  * @route  POST /api/admin/users/:address/ban
@@ -54,7 +57,7 @@ router.post('/users/:address/suspend', requireMfa, adminController.suspendUser);
  * @body   { reason: string }
  * @security Requires MFA verification
  */
-router.post('/users/:address/ban', requireMfa, adminController.banUser);
+router.post('/users/:address/ban', validateAdminAddress, requireMfa, adminController.banUser);
 
 // ── Disputes ───────────────────────────────────────────────────────────────────
 /**
